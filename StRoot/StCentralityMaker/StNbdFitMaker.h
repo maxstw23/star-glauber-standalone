@@ -70,6 +70,8 @@ class StNbdFitMaker {
 		StNegativeBinomial* mNBinomial ; /// Negative binomial distribution
 		TH1* mhRefMult     ; /// Reference multiplicity
 		TH1* mhRefMultSim  ; /// Simulated refmult
+		TH1* mhNpart	   ; /// Npart histogram (XIATONG)
+		TH2* mhRefMultSim_Npart ; /// Refmult vs Npart histograms for fit (XIATONG)
 		TH2* mhNcoll_Npart ; /// Ncoll vs Npart histograms for fit
 		Int_t mNData ; /// Number of data points used in fit
 		Double_t mMinimumMultiplicityCut ; /// Minimum multiplicity cut for fitting

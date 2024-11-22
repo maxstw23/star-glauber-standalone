@@ -18,7 +18,7 @@ cd star-glauber-standalone
 ```bash
 mkdir build
 cd build
-cmake -B. -S../StRoot/
+cmake -B . -S ../StRoot/
 make -j4
 ```
 

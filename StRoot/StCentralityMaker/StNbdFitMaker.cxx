@@ -29,6 +29,8 @@ StNbdFitMaker::StNbdFitMaker()
 	mNBinomial = 0 ;
 	mhRefMult = 0 ;
 	mhRefMultSim = 0 ;
+	mhNpart = 0 ;
+	mhRefMultSim_Npart = 0 ;
 
 	mNData = 0 ;
 
@@ -304,10 +306,15 @@ void StNbdFitMaker::ReadData(const Char_t* data, const Char_t* glauber, const Ch
 	const Double_t xmax = mhRefMult->GetXaxis()->GetXmax() ;
 	mhRefMultSim = new TH1D("hRefMultSim", "", nbinsx, xmin, xmax);
 	mhRefMultSim->SetLineColor(2);
+	mhNpart = new TH1D("hNpart", "", 400, 0, 400);
+	mhNpart->SetLineColor(2);
+	mhRefMultSim_Npart = new TH2D("hRefMultSim_Npart", "", 400, 0, 400, nbinsx, xmin, xmax);
 
 	// Sumw2 to calculate error properly
 	mhRefMult->Sumw2();
 	mhRefMultSim->Sumw2();
+	mhNpart->Sumw2();
+	mhRefMultSim_Npart->Sumw2();
 
 	// Read glauber file
 	TFile* inputGlauber = TFile::Open(glauber);
@@ -348,6 +355,8 @@ TGraph* StNbdFitMaker::Fit(const Int_t nevents, TString outputFileName)//zaochen
 	}
 
 	mhRefMultSim->Reset();
+	mhNpart->Reset();
+	mhRefMultSim_Npart->Reset();
 
 	Int_t ievent = 0 ;
 	while( ievent < nevents ) 
@@ -359,6 +368,8 @@ TGraph* StNbdFitMaker::Fit(const Int_t nevents, TString outputFileName)//zaochen
 
 		const Int_t multiplicity = mNBinomial->GetMultiplicity(npart, static_cast<Int_t>(ncoll));
 		mhRefMultSim->Fill(multiplicity);
+		mhNpart->Fill(npart);
+		mhRefMultSim_Npart->Fill(npart, multiplicity);
 
 		if( ievent % (nevents/10) == 0 )
 		{
@@ -374,6 +385,7 @@ TGraph* StNbdFitMaker::Fit(const Int_t nevents, TString outputFileName)//zaochen
 	const Double_t norm = GetNormalization(*mhRefMult, *mhRefMultSim, mMinimumMultiplicityCut, mhRefMult->GetXaxis()->GetXmax());
 	//const Double_t norm = GetNormalization(*mhRefMult, *mhRefMultSim, mMinimumMultiplicityCut, 400);
 	mhRefMultSim->Scale(norm);
+	mhNpart->Scale(norm);
 
 	// Get chi2
 	const Double_t chi2 = CalculateChi2(*mhRefMult, *mhRefMultSim, mMinimumMultiplicityCut);
@@ -459,6 +471,8 @@ TGraph* StNbdFitMaker::Fit(const Int_t nevents, TString outputFileName)//zaochen
 		TFile* output = TFile::Open(outputFileName, "recreate");
 		mhRefMult->Write();
 		mhRefMultSim->Write();
+		mhNpart->Write();
+		mhRefMultSim_Npart->Write();
 		hRatio->Write();
 		output->Close();
 	}
